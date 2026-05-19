@@ -31,19 +31,23 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const isServerless = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+
 /**
  * Tạo folder uploads để tránh lỗi:
  * ENOENT: no such file or directory, mkdir 'uploads/avatars'
  */
-const uploadDir = path.join(process.cwd(), "uploads");
-const avatarDir = path.join(process.cwd(), "uploads", "avatars");
+if (!isServerless) {
+  const uploadDir = path.join(process.cwd(), "uploads");
+  const avatarDir = path.join(process.cwd(), "uploads", "avatars");
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
 
-if (!fs.existsSync(avatarDir)) {
-  fs.mkdirSync(avatarDir, { recursive: true });
+  if (!fs.existsSync(avatarDir)) {
+    fs.mkdirSync(avatarDir, { recursive: true });
+  }
 }
 
 /**
@@ -59,7 +63,9 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+if (!isServerless) {
+  app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+}
 
 /**
  * MongoDB connection

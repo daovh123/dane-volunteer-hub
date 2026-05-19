@@ -3,13 +3,17 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// ✅ Tạo folder
-const uploadDirs = ["uploads/avatars", "uploads/events"];
-uploadDirs.forEach((dir) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync("uploads/avatars", { recursive: true });
-  }
-});
+const isServerless = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+
+// ✅ Tạo folder (chi chi tren moi truong co o dia)
+if (!isServerless) {
+  const uploadDirs = ["uploads/avatars", "uploads/events"];
+  uploadDirs.forEach((dir) => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  });
+}
 
 // ✅ Image filter
 const imageFilter = (req, file, cb) => {
@@ -27,26 +31,33 @@ const imageFilter = (req, file, cb) => {
 };
 
 // ✅ Avatar storage
-const avatarStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/avatars");
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, `avatar-${uniqueSuffix}` + path.extname(file.originalname));
-  },
-});
+const avatarStorage = isServerless
+  ? multer.memoryStorage()
+  : multer.diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, "uploads/avatars");
+      },
+      filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        cb(null, `avatar-${uniqueSuffix}` + path.extname(file.originalname));
+      },
+    });
 
 // ✅ Event storage
-const eventStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/events");
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
-  },
-});
+const eventStorage = isServerless
+  ? multer.memoryStorage()
+  : multer.diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, "uploads/events");
+      },
+      filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        cb(
+          null,
+          file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+        );
+      },
+    });
 
 // ✅ Export - CHỈ 1 LẦN
 export const uploadAvatar = multer({
