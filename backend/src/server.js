@@ -1,7 +1,5 @@
 /**
  * VolunteerHub Backend Server
- * Express application with MongoDB integration and REST API routes.
- * Implements authentication, event management, and notification systems.
  */
 
 import express from "express";
@@ -10,7 +8,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { connectDB } from "./config/db.js";
-import { startCronJobs } from "./utils/cronJob.js";
+// import { startCronJobs } from "./utils/cronJob.js";
 
 import authRoutes from "./routes/auth.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
@@ -25,19 +23,30 @@ import commentRoutes from "./routes/comment.routes.js";
 import eventActionRoutes from "./routes/eventAction.routes.js";
 
 dotenv.config();
+
 const app = express();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/uploads", express.static("uploads"));
+
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 await connectDB();
-startCronJobs();
 
-app.get("/", (req, res) => res.send("✅ VolunteerHub Backend API is running..."));
+// Không nên chạy cron job trên Vercel serverless
+// startCronJobs();
+
+app.get("/", (req, res) => {
+  res.send("✅ VolunteerHub Backend API is running...");
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({ message: "Backend is running" });
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
@@ -52,8 +61,10 @@ app.use("/api/statistics", statisticsRoutes);
 app.use("/api/notifications", notificationRoutes);
 
 app.use((req, res) => {
-  res.status(404).json({ message: "API route not found", path: req.originalUrl });
+  res.status(404).json({
+    message: "API route not found",
+    path: req.originalUrl,
+  });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+export default app;
