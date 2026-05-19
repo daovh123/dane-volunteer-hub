@@ -67,4 +67,10 @@ app.use((req, res) => {
   });
 });
 
+
+app.get("/api/health", (req, res) => {
+  res.json({ message: "Backend is running" });
+});
+
+
 export default app;
