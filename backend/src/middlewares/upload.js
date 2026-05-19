@@ -7,7 +7,7 @@ import fs from "fs";
 const uploadDirs = ["uploads/avatars", "uploads/events"];
 uploadDirs.forEach((dir) => {
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+    fs.mkdirSync("uploads/avatars", { recursive: true });
   }
 });
 

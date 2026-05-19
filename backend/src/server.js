@@ -1,12 +1,12 @@
 /**
  * VolunteerHub Backend Server
- * Express application with MongoDB integration and REST API routes.
  */
 
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 
 import { connectDB } from "./config/db.js";
@@ -32,6 +32,21 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
+ * Tạo folder uploads để tránh lỗi:
+ * ENOENT: no such file or directory, mkdir 'uploads/avatars'
+ */
+const uploadDir = path.join(process.cwd(), "uploads");
+const avatarDir = path.join(process.cwd(), "uploads", "avatars");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+if (!fs.existsSync(avatarDir)) {
+  fs.mkdirSync(avatarDir, { recursive: true });
+}
+
+/**
  * Middleware
  */
 app.use(
@@ -44,15 +59,10 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/**
- * Static uploads
- * Lưu ý: Vercel không phù hợp để lưu file upload lâu dài.
- */
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 /**
- * Connect MongoDB
- * Không dùng await top-level để tránh crash serverless function.
+ * MongoDB connection
  */
 connectDB()
   .then(() => {
@@ -63,7 +73,7 @@ connectDB()
   });
 
 /**
- * Không chạy cron job trên Vercel serverless.
+ * Không chạy cron job trên Vercel serverless
  */
 // startCronJobs();
 
