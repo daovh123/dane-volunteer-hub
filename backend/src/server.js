@@ -55,15 +55,28 @@ if (!isServerless) {
  */
 const allowedOrigins = [
   "http://localhost:3000",
+  "http://localhost:5173",
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error("Not allowed by CORS"));
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const isAllowed =
+        allowedOrigins.includes(origin) || origin.endsWith(".vercel.app");
+
+      if (isAllowed) {
+        return callback(null, true);
+      }
+
+      console.log("Blocked by CORS:", origin);
+      console.log("Allowed origins:", allowedOrigins);
+
+      return callback(new Error(`CORS blocked origin: ${origin}`));
     },
     credentials: true,
   })
@@ -72,9 +85,8 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const uploadsDir = path.join(process.cwd(), "uploads");
-if (!isServerless && fs.existsSync(uploadsDir)) {
-  app.use("/uploads", express.static(uploadsDir));
+if (!isServerless) {
+  app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 }
 
 /**
