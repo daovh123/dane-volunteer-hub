@@ -15,6 +15,7 @@ import lizard from "../assets/img/lizard-removebg-preview.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMars, faVenus } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
+import { getUploadUrl } from "../api";
 
 const ThongTinNguoiDung = ({ user, onUserUpdated }) => {
   const [editData, setEditData] = useState({});
@@ -48,10 +49,8 @@ const ThongTinNguoiDung = ({ user, onUserUpdated }) => {
     });
     setAvatarPreview(
       user.avatar
-        ? user.avatar.startsWith("http")
-          ? user.avatar
-          : `http://localhost:5000${user.avatar}`
-        : "http://localhost:5000/uploads/avatars/avatar-1764958251284-210153801.png"
+        ? getUploadUrl(user.avatar)
+        : getUploadUrl("/uploads/avatars/avatar-1764958251284-210153801.png")
     );
     setEditMode(true);
   };
@@ -242,10 +241,8 @@ const ThongTinNguoiDung = ({ user, onUserUpdated }) => {
             style={{
               backgroundImage: `url(${avatarPreview ||
                 (user?.avatar
-                  ? user.avatar.startsWith("http")
-                    ? user.avatar
-                    : `http://localhost:5000${user.avatar}`
-                  : "http://localhost:5000/uploads/avatars/avatar-1764958251284-210153801.png")
+                  ? getUploadUrl(user.avatar)
+                  : getUploadUrl("/uploads/avatars/avatar-1764958251284-210153801.png"))
                 })`,
             }}
           >

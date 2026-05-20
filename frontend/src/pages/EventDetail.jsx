@@ -24,6 +24,7 @@ import {
   GetUserInfo,
 } from "../services/UserService";
 import Swal from "sweetalert2";
+import { getUploadUrl } from "../api";
 
 const categoryMapping = {
   Community: "Cộng đồng",
@@ -234,7 +235,7 @@ export default function EventDetail() {
     let html = description;
 
     galleryImages.forEach((img, index) => {
-      const realUrl = `http://localhost:5000${img}`;
+      const realUrl = getUploadUrl(img);
       const placeholder = `[IMAGE_PLACEHOLDER_${index}]`;
 
       // Ảnh căn giữa
@@ -286,7 +287,7 @@ export default function EventDetail() {
         <img
           src={
             event.coverImage
-              ? `http://localhost:5000${event.coverImage}`
+              ? getUploadUrl(event.coverImage)
               : "/default-event.png"
           }
           alt={event.name}

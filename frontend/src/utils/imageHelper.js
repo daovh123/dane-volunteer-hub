@@ -1,7 +1,10 @@
 // utils/imageHelper.js
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const DEFAULT_AVATAR = `${BASE_URL}/uploads/avatars/avatar-1764958251284-210153801.png`;
+import { getUploadUrl } from "../api";
+
+const DEFAULT_AVATAR = getUploadUrl(
+  "/uploads/avatars/avatar-1764958251284-210153801.png"
+);
 const DEFAULT_EVENT_IMAGE = "/default-event.png";
 
 /**
@@ -20,18 +23,7 @@ export const getAvatarUrl = (avatarPath) => {
     return avatarPath;
   }
 
-  // Nếu path bắt đầu bằng /uploads
-  if (avatarPath.startsWith("/uploads")) {
-    return `${BASE_URL}${avatarPath}`;
-  }
-
-  // Nếu path bắt đầu bằng uploads (không có /)
-  if (avatarPath.startsWith("uploads")) {
-    return `${BASE_URL}/${avatarPath}`;
-  }
-
-  // Fallback: thêm / nếu cần
-  return `${BASE_URL}${avatarPath.startsWith("/") ? "" : "/"}${avatarPath}`;
+  return getUploadUrl(avatarPath);
 };
 
 /**
@@ -50,18 +42,7 @@ export const getImageUrl = (path) => {
     return path;
   }
 
-  // Nếu path bắt đầu bằng /uploads
-  if (path.startsWith("/uploads")) {
-    return `${BASE_URL}${path}`;
-  }
-
-  // Nếu path bắt đầu bằng uploads (không có /)
-  if (path.startsWith("uploads")) {
-    return `${BASE_URL}/${path}`;
-  }
-
-  // Fallback: thêm / nếu cần
-  return `${BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+  return getUploadUrl(path);
 };
 
 /**

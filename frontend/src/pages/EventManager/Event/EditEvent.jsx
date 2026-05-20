@@ -19,6 +19,7 @@ import {
   UpdateEvents,
 } from "../../../services/EventManagerService";
 import dayjs from "dayjs";
+import { getUploadUrl } from "../../../api";
 
 const { Option } = Select;
 
@@ -46,16 +47,16 @@ export default function EditEvent() {
     { label: "Doanh nghiệp", value: "Corporate" },
   ];
 
+  const normalizeUploadUrl = (url) => {
+    if (!url) return url;
+    if (url.startsWith("data:")) return url;
+    return getUploadUrl(url);
+  };
+
   const convertImgURLToFile = async (url, filename = null) => {
     try {
-      // Normalize URL: if it's already absolute, use as-is; otherwise prepend backend host
-      let norm = url;
-      if (!/^https?:\/\//i.test(url)) {
-        const host = "http://localhost:5000";
-        if (url.startsWith("/")) norm = `${host}${url}`;
-        else norm = `${host}/${url}`;
-      }
-      const res = await fetch(norm);
+      const normalizedUrl = normalizeUploadUrl(url);
+      const res = await fetch(normalizedUrl);
       const blob = await res.blob();
       const name = filename || `pasted_${Date.now()}`;
       return new File([blob], `${name}.${blob.type.split("/")[1]}`, {
@@ -100,7 +101,7 @@ export default function EditEvent() {
     let html = description;
 
     galleryImages.forEach((img, index) => {
-      const realUrl = img.url ? img.url : `http://localhost:5000${img}`;
+      const realUrl = img.url ? img.url : getUploadUrl(img);
       const placeholder = `[IMAGE_PLACEHOLDER_${index}]`;
       const imgTag = `<img src="${realUrl}" style="max-width:100%; border-radius:6px;" />`;
       html = html.replaceAll(placeholder, imgTag);
@@ -151,8 +152,7 @@ export default function EditEvent() {
             uid: `${i}`,
             name: `gallery_${i}.jpg`,
             status: "done",
-            url: `http://localhost:5000${img && img.startsWith("/") ? "" : "/"
-              }${img}`,
+            url: getUploadUrl(img),
           }));
           setGalleryImages(galleryFiles);
 
@@ -171,8 +171,7 @@ export default function EditEvent() {
                 uid: "-1",
                 name: "cover.jpg",
                 status: "done",
-                url: `http://localhost:5000${coverPath && coverPath.startsWith("/") ? "" : "/"
-                  }${coverPath}`,
+                url: getUploadUrl(coverPath),
               },
             ]);
           }

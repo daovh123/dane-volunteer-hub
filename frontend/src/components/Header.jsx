@@ -19,6 +19,7 @@ import { openLogin, logout, setUser } from "../redux/reducers/UserReducer";
 import { Dropdown, Menu } from "antd";
 import { removeLocalStorage, SwalConfig } from "../utils/Configs";
 import { LOCALSTORAGE_USER } from "../utils/Constants";
+import { getUploadUrl } from "../api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRightFromBracket,
@@ -201,9 +202,7 @@ export default function Header() {
                     <img
                       src={
                         user?.avatar
-                          ? user.avatar.startsWith("http")
-                            ? user.avatar
-                            : `http://localhost:5000${user.avatar}`
+                          ? getUploadUrl(user.avatar)
                           : "https://ui-avatars.com/api/?name=" +
                           encodeURIComponent(user?.username || user?.name || "User") +
                           "&background=DCBA58&color=fff&size=128"

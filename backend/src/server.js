@@ -53,9 +53,18 @@ if (!isServerless) {
 /**
  * Middleware
  */
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: "*",
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
@@ -63,8 +72,9 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-if (!isServerless) {
-  app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+const uploadsDir = path.join(process.cwd(), "uploads");
+if (!isServerless && fs.existsSync(uploadsDir)) {
+  app.use("/uploads", express.static(uploadsDir));
 }
 
 /**
@@ -94,6 +104,10 @@ app.get("/api/health", (req, res) => {
   res.json({
     message: "Backend is running",
   });
+});
+
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Backend connected successfully" });
 });
 
 /**

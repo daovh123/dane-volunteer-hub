@@ -14,6 +14,7 @@ import {
     EventActions,
 } from "../services/UserService";
 import Swal from "sweetalert2";
+import { getUploadUrl } from "../api";
 
 // --- UTILS ---
 const removeVietnameseTones = (str) =>
@@ -478,9 +479,9 @@ export default function EventList() {
                                 {/* Ảnh cover */}
                                 <img
                                     src={
-                                        event.coverImage?.startsWith("http")
-                                            ? event.coverImage
-                                            : `http://localhost:5000${event.coverImage}`
+                                        event.coverImage
+                                            ? getUploadUrl(event.coverImage)
+                                            : "/default-event.png"
                                     }
                                     alt={event.name}
                                     className="h-[250px] md:h-[400px] w-full object-cover"

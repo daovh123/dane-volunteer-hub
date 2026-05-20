@@ -1,2 +1,4 @@
-export const DOMAIN_BE = 'http://localhost:5000/api';
-export const LOCALSTORAGE_USER = 'user'
+import { getApiUrl } from "../api";
+
+export const DOMAIN_BE = getApiUrl("/api");
+export const LOCALSTORAGE_USER = "user";

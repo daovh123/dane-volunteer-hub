@@ -17,6 +17,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { GetEventDetail as GetEventDetailForManager } from "../../../services/EventManagerService";
+import { getUploadUrl } from "../../../api";
 
 const categoryMapping = {
   Community: "Cộng đồng",
@@ -40,8 +41,6 @@ export default function AdminEventDetail() {
   const [rejectModalVisible, setRejectModalVisible] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [customReason, setCustomReason] = useState("");
-
-  const BASE_URL = "http://localhost:5000";
 
   useEffect(() => {
     async function load() {
@@ -132,10 +131,10 @@ export default function AdminEventDetail() {
   };
 
   const getFullUrl = (path) => {
-    if (!path || path === "default-event-image.jpg")
+    if (!path || path === "default-event-image.jpg") {
       return "/default-event.png";
-    if (path.startsWith("http")) return path;
-    return `${BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+    }
+    return getUploadUrl(path);
   };
 
   const renderDescription = (description, galleryImages) => {
